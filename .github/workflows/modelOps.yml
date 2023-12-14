@@ -28,7 +28,7 @@ jobs:
         run: echo "Hello, world! from workflows"
         
       - name: pip install
-        run: pip install -r requirements.txt
+        run: pip install pandas
 
       - name: run model 
         run: python points_inmap.py

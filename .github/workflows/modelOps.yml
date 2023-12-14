@@ -26,6 +26,9 @@ jobs:
       # Runs a single command using the runners shell
       - name: hello-world
         run: echo "Hello, world! from workflows"
+        
+      - name: pip install
+        run: pip install -r requirements.txt
 
       - name: run model 
         run: python points_inmap.py

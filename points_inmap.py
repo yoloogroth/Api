@@ -2,7 +2,6 @@ import numpy as np
 import os
 import pandas as pd
 import tensorflow as tf
-
 # Función para generar datos en forma de círculo alrededor de un punto central
 def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0):
     pi = np.pi

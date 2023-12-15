@@ -2,6 +2,7 @@ import numpy as np
 import os
 import pandas as pd
 import tensorflow as tf
+
 # Función para generar datos en forma de círculo alrededor de un punto central
 def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0):
     pi = np.pi
@@ -23,14 +24,14 @@ def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0):
     df = pd.DataFrame({'lat': y, 'lon': x})
     return df
 
-# Genera datos en forma de círculo alrededor de Brasilia y Kazajistán
-datos_brasilia = circulo(num_datos=100, R=2, centro_lat=-15.7801, centro_lon=-47.9292)
-datos_kazajistan = circulo(num_datos=100, R=0.5, centro_lat=48.0196, centro_lon=66.9237)
+# Modifica los datos generados para que uno esté cerca de cero y el otro cerca de uno
+datos_brasilia = circulo(num_datos=100, R=0.01, centro_lat=-15.7801, centro_lon=-47.9292)
+datos_kazajistan = circulo(num_datos=100, R=0.99, centro_lat=48.0196, centro_lon=66.9237)
 
 # Combina los datos de Brasilia y Kazajistán en un solo conjunto de datos
 X = np.concatenate([datos_brasilia, datos_kazajistan])
 X = np.round(X, 6)
-y = np.concatenate([np.zeros(800), np.ones(100), np.ones(100)])  # Asigna etiquetas (0 para datos circulares, 1 para Brasilia y Kazajistán)
+y = np.concatenate([np.zeros(100), np.ones(100)])  # Asigna etiquetas (0 para datos circulares, 1 para Brasilia y Kazajistán)
 
 # Divide el conjunto de datos en entrenamiento, prueba y validación
 train_end = int(0.6 * len(X))

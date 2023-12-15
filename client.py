@@ -1,30 +1,43 @@
+import streamlit as st
 import requests
-import json
 
-# Función para enviar coordenadas geográficas al servidor de Tensor Serving
-def send_coordinates(coordinates):
-    url = 'http://localhost:8501/v1/models/linear-model:predict'  # Reemplaza 'your_model_name' con el nombre de tu modelo
-    data = {"instances": [{"lat": lat, "lon": lon} for lat, lon in coordinates]}
-    response = requests.post(url, json=data)
+SERVER_URL = 'https://map-model-service-icec-yoangelcruz.cloud.okteto.net/v1/models/map-model:predict'
 
+def make_prediction(inputs):
+    predict_request = {'instances': inputs}
+    response = requests.post(SERVER_URL, json=predict_request)
+    
     if response.status_code == 200:
-        predictions = json.loads(response.content.decode('utf-8'))
-        return predictions['predictions']
+        prediction = response.json()
+        return prediction
     else:
-        print("Failed to get predictions.")
+        st.error("Failed to get predictions. Please check your inputs and try again.")
         return None
 
-# Coordenadas geográficas para Brasilia y Kazajistán
-gps_points_kazakhstan = [[66.9237, 48.0196], [66.5, 48.2], [67.0, 47.8], [67.2, 48.5], [66.8, 47.9]]
-gps_points_brasilia = [[-47.9292, -15.7801], [-48.0, -15.7], [-47.8, -15.9], [-48.1, -15.6], [-47.7, -15.8]]
+def main():
+    st.title('Predictor de ubicaciones geográficas')
 
-# Enviar coordenadas para predicciones
-predictions_kazakhstan = send_coordinates(gps_points_kazakhstan)
-predictions_brasilia = send_coordinates(gps_points_brasilia)
+    st.header('Coordenadas para Kazajistán')
+    kazakhstan_lat = st.number_input('Ingrese la latitud de Kazajistán:', value=48.0196)
+    kazakhstan_lon = st.number_input('Ingrese la longitud de Kazajistán:', value=66.9237)
 
-# Imprimir las predicciones
-print("\nPredictions for Kazakhstan:")
-print(predictions_kazakhstan)
+    st.header('Coordenadas para Brasilia')
+    brasilia_lat = st.number_input('Ingrese la latitud de Brasilia:', value=-15.7801)
+    brasilia_lon = st.number_input('Ingrese la longitud de Brasilia:', value=-47.9292)
 
-print("\nPredictions for Brasilia:")
-print(predictions_brasilia)
+    if st.button('Predecir'):
+        inputs = [
+            [kazakhstan_lon, kazakhstan_lat],
+            [brasilia_lon, brasilia_lat]
+        ]
+        predictions = make_prediction(inputs)
+
+        if predictions:
+            st.write("\nPredicciones para Kazajistán:")
+            st.write(predictions['predictions'][0])
+
+            st.write("\nPredicciones para Brasilia:")
+            st.write(predictions['predictions'][1])
+
+if __name__ == '__main__':
+    main()

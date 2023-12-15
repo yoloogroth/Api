@@ -4,3 +4,4 @@ keras
 scipy
 pandas
 requests
+streamlit

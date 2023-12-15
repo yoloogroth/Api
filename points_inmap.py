@@ -89,12 +89,6 @@ gps_points_brasilia = [[-47.9292, -15.7801], [-48.0, -15.7], [-47.8, -15.9], [-4
 predictions_kazakhstan = linear_model.predict(gps_points_kazakhstan).tolist()
 predictions_brasilia = linear_model.predict(gps_points_brasilia).tolist()
 
-# Ajusta las predicciones para Kazajistán cerca de cero y Brasilia cerca de uno
-for pred in predictions_kazakhstan:
-    pred[0] = np.random.uniform(low=0.0, high=0.1)  # Ajusta cerca de cero
-
-for pred in predictions_brasilia:
-    pred[0] = np.random.uniform(low=0.9, high=1.0)  # Ajusta cerca de uno
 
 # Imprime las predicciones ajustadas
 print("\nPredictions for Kazakhstan:")

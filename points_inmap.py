@@ -4,21 +4,13 @@ import pandas as pd
 import tensorflow as tf
 
 # Función para generar datos en forma de círculo alrededor de un punto central
-def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0, primeros_ceros=True):
+def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0):
     pi = np.pi
     # Genera ángulos aleatorios uniformemente distribuidos
     theta = np.random.uniform(0, 2 * pi, size=num_datos)
 
     # Genera valores positivos para el radio utilizando una distribución normal
     r_positive = np.abs(R * np.sqrt(np.random.normal(0, 1, size=num_datos)**2))
-
-    # Ajusta la cantidad de ceros y unos en las etiquetas
-    if primeros_ceros:
-        num_ceros = int(num_datos / 2)
-        num_unos = num_datos - num_ceros
-    else:
-        num_unos = int(num_datos / 2)
-        num_ceros = num_datos - num_unos
 
     # Calcula las coordenadas x e y en base a coordenadas polares
     x = np.cos(theta) * r_positive + centro_lon
@@ -30,25 +22,16 @@ def circulo(num_datos=500000, R=1, centro_lat=0, centro_lon=0, primeros_ceros=Tr
 
     # Crea un DataFrame con las coordenadas
     df = pd.DataFrame({'lat': y, 'lon': x})
-
-    # Crea etiquetas con ceros y unos
-    labels = np.concatenate([np.zeros(num_ceros), np.ones(num_unos)])
-
-    return df, labels
+    return df
 
 # Genera datos en forma de círculo alrededor de Brasilia y Kazajistán
-datos_brasilia, labels_brasilia = circulo(num_datos=100, R=2, centro_lat=-15.7801, centro_lon=-47.9292, primeros_ceros=True)
-datos_kazajistan, labels_kazajistan = circulo(num_datos=100, R=0.5, centro_lat=48.0196, centro_lon=66.9237, primeros_ceros=False)
+datos_brasilia = circulo(num_datos=100, R=2, centro_lat=-15.7801, centro_lon=-47.9292)
+datos_kazajistan = circulo(num_datos=100, R=0.5, centro_lat=48.0196, centro_lon=66.9237)
 
 # Combina los datos de Brasilia y Kazajistán en un solo conjunto de datos
 X = np.concatenate([datos_brasilia, datos_kazajistan])
 X = np.round(X, 6)
-y = np.concatenate([labels_brasilia, labels_kazajistan])
-
-# Modifica los primeros 5 elementos del conjunto de datos para que estén cerca de cero
-X[:5] = np.random.uniform(low=-0.1, high=0.1, size=(5, 2))
-# Modifica los siguientes 5 elementos del conjunto de datos para que estén cerca de uno
-X[5:10] = np.random.uniform(low=0.9, high=1.1, size=(5, 2))
+y = np.concatenate([np.zeros(800), np.ones(100), np.ones(100)])  # Asigna etiquetas (0 para datos circulares, 1 para Brasilia y Kazajistán)
 
 # Divide el conjunto de datos en entrenamiento, prueba y validación
 train_end = int(0.6 * len(X))
@@ -78,7 +61,7 @@ print(linear_model.summary())
 linear_model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=300)
 
 # Guarda el modelo entrenado en el directorio 'linear-model/1/'
-export_path = 'linear-model/1/'  # Cambia el número del modelo si es necesario
+export_path = 'map-model/1/'  # Cambia el número del modelo si es necesario
 tf.saved_model.save(linear_model, os.path.join('./', export_path))
 
 # Puntos GPS para Kazajistán y Brasilia
@@ -89,8 +72,7 @@ gps_points_brasilia = [[-47.9292, -15.7801], [-48.0, -15.7], [-47.8, -15.9], [-4
 predictions_kazakhstan = linear_model.predict(gps_points_kazakhstan).tolist()
 predictions_brasilia = linear_model.predict(gps_points_brasilia).tolist()
 
-
-# Imprime las predicciones ajustadas
+# Imprime las predicciones
 print("\nPredictions for Kazakhstan:")
 print(predictions_kazakhstan)
 

@@ -1,3 +1,4 @@
+#debe consumir la api dependiendo lo que pida 
 import streamlit as st
 import requests
 
